@@ -1,0 +1,8 @@
+# Скрипты и конфиги исполняются на Linux — только LF.
+# Без этого Windows-клон получит CRLF, и bash упадёт с "bad interpreter".
+*.sh   text eol=lf
+*.yml  text eol=lf
+*.json text eol=lf
+*.conf text eol=lf
+*.md   text eol=lf
+.env.example text eol=lf
