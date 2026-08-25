@@ -1,0 +1,31 @@
+# ============================================================
+#  Оверлей поверх штатного docker-compose.yml из репозитория
+#  openclaw/openclaw. Апстрим не патчим — он обновляется git pull,
+#  а все наши изменения живут здесь.
+# ============================================================
+services:
+  openclaw-gateway:
+    # ЭТАП 2. Ключевая строка всего решения.
+    # DNS резолвит api.telegram.org в 149.154.166.110 — адрес заблокирован из РФ.
+    # Прибиваем домен к живому адресу Telegram прямо в /etc/hosts контейнера.
+    # Системного VPN на хосте при этом нет вообще.
+    extra_hosts:
+      - "api.telegram.org:${TELEGRAM_API_IP:-149.154.167.220}"
+
+    # На VPS 2 ГБ RAM и рядом работают чужие сервисы — не даём Node их выдавить
+    mem_limit: ${OPENCLAW_MEM_LIMIT:-1024m}
+
+    # Секреты приезжают из .env как переменные окружения.
+    # В openclaw.json лежат только ссылки ${...}, самих значений там нет.
+    environment:
+      TELEGRAM_BOT_TOKEN: ${TELEGRAM_BOT_TOKEN:?нужен TELEGRAM_BOT_TOKEN в .env}
+      ORCAROUTER_API_KEY: ${ORCAROUTER_API_KEY:?нужен ORCAROUTER_API_KEY в .env}
+
+    logging:
+      driver: json-file
+      options: { max-size: "10m", max-file: "3" }
+
+  openclaw-cli:
+    environment:
+      TELEGRAM_BOT_TOKEN: ${TELEGRAM_BOT_TOKEN:-}
+      ORCAROUTER_API_KEY: ${ORCAROUTER_API_KEY:-}

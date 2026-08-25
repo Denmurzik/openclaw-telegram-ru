@@ -1,0 +1,74 @@
+{
+  "$schema": "https://docs.openclaw.ai/schema/openclaw.schema.json",
+
+  "gateway": {
+    "mode": "local",
+    "bind": "lan",
+    "controlUi": {
+      "allowedOrigins": ["http://localhost:18789", "http://127.0.0.1:18789"]
+    }
+  },
+
+  "models": {
+    "providers": {
+      "orcarouter": {
+        "baseUrl": "https://api.orcarouter.ai/v1",
+        "apiKey": "${ORCAROUTER_API_KEY}",
+        "api": "openai-completions",
+        "timeoutSeconds": 300,
+        "models": [
+          {
+            "id": "qwen/qwen3.8-27b-free",
+            "name": "Qwen3.8 27B (free)",
+            "reasoning": true,
+            "input": ["text"],
+            "cost": { "input": 0, "output": 0, "cacheRead": 0, "cacheWrite": 0 },
+            "contextWindow": 64000,
+            "maxTokens": 8192
+          },
+          {
+            "id": "deepseek/deepseek-v4-flash-free",
+            "name": "DeepSeek V4 Flash (free, резерв)",
+            "reasoning": false,
+            "input": ["text"],
+            "cost": { "input": 0, "output": 0, "cacheRead": 0, "cacheWrite": 0 },
+            "contextWindow": 64000,
+            "maxTokens": 8192
+          },
+          {
+            "id": "tencent/hy3-free",
+            "name": "Tencent HY3 (free, резерв 2)",
+            "reasoning": false,
+            "input": ["text"],
+            "cost": { "input": 0, "output": 0, "cacheRead": 0, "cacheWrite": 0 },
+            "contextWindow": 64000,
+            "maxTokens": 8192
+          }
+        ]
+      }
+    }
+  },
+
+  "agents": {
+    "defaults": {
+      "model": {
+        "primary": "orcarouter/qwen/qwen3.8-27b-free",
+        "fallbacks": [
+          "orcarouter/deepseek/deepseek-v4-flash-free",
+          "orcarouter/tencent/hy3-free"
+        ]
+      }
+    }
+  },
+
+  "channels": {
+    "telegram": {
+      "enabled": true,
+
+      "dmPolicy": "open",
+      "allowFrom": ["*"],
+
+      "groupPolicy": "disabled"
+    }
+  }
+}

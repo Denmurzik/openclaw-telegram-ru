@@ -1,0 +1,23 @@
+# Sidecar-маршрутизатор. Подключается ТОЛЬКО при включении плана Б.
+# См. README.md в этой папке.
+services:
+  tg-proxy:
+    image: vimagick/tinyproxy:latest
+    container_name: openclaw-tg-proxy
+    restart: unless-stopped
+    mem_limit: 64m
+    networks: [default]
+    volumes:
+      - ./tinyproxy-sidecar.conf:/etc/tinyproxy/tinyproxy.conf:ro
+    entrypoint: ["/bin/sh", "-c"]
+    command:
+      - |
+        sed "s#__UPSTREAM_PROXY__#${UPSTREAM_PROXY:?нужен UPSTREAM_PROXY в .env}#" \
+          /etc/tinyproxy/tinyproxy.conf > /tmp/tinyproxy.conf
+        exec tinyproxy -d -c /tmp/tinyproxy.conf
+
+  openclaw-gateway:
+    environment:
+      OPENCLAW_PROXY_URL: ${OPENCLAW_PROXY_URL:-http://tg-proxy:8888}
+    depends_on:
+      - tg-proxy
